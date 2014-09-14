@@ -92,6 +92,8 @@ User.prototype.init = function() {
 	}
 };
 
+
+
 var test = new User("ming33");
 
 test.init();
