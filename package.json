@@ -1,0 +1,16 @@
+{
+  "name": "douban-movie-stat",
+  "version": "0.0.1",
+  "description": "A useful tool for movie collection",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cheerio": "0.17.0"
+  }
+  
+}
