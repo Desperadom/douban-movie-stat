@@ -10,7 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "cheerio": "0.17.0"
+    "cheerio": "0.17.0",
+    "node-static" : "0.7.3"
   }
   
 }

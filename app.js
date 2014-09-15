@@ -1,5 +1,14 @@
 var http = require("http");
 var cheerio = require("cheerio");
+var node_static = require("node-static");
+
+var file = new node_static.Server('./static');
+require('http').createServer(function (request, response) {
+    request.addListener('end', function () {
+        file.serve(request, response);
+    }).resume();
+}).listen(8080);
+
 
 function getHTMLPage(url, callback) {
 	console.log(url)
@@ -94,8 +103,7 @@ User.prototype.init = function() {
 
 
 
-var test = new User("ming33");
-
-test.init();
+// var test = new User("ming33");
+// test.init();
 
 
