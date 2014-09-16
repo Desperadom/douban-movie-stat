@@ -1,17 +1,60 @@
 var http = require("http");
+var url = require('url');
+var path = require('path');
 var cheerio = require("cheerio");
 var node_static = require("node-static");
 
 var file = new node_static.Server('./static');
 require('http').createServer(function (request, response) {
-    request.addListener('end', function () {
-        file.serve(request, response);
-    }).resume();
+
+	var pathname = url.parse(request.url).pathname;
+	var ext = path.extname(pathname);
+
+	if(/^.html$|^.css$|^.js$|^.json$|^.xml$|^.ico$/.test(ext.toLowerCase())){
+		request.addListener('end', function () {
+	        file.serve(request, response);
+	    }).resume();
+	}else {
+		if(request.method == "GET") {
+			var query = url.parse(request.url).query;
+
+
+		}else if(request.method == "POST") {
+			var source = "";
+			request.on('data', function(chunk) {
+                source += chunk;
+            }).on("end", function() {
+                postData = JSON.parse(source);
+                handle(pathname, postData, response);
+    
+            });
+		}
+	}
+    
 }).listen(8080);
+
+function handle(pathname, data, response) {
+	var returnData = {};
+	if(pathname === "/getMoviesCollection.do") {
+		var currentUser = new User(data.id);
+		currentUser.init(function() {
+			returnData = currentUser.movieCollection;
+			console.log(returnData)
+			handleResponse(response, returnData);
+		});
+	}
+
+	function handleResponse(response, returnData) {
+        response.writeHead(200, {"Content-Type": "application/json"});
+		response.write(JSON.stringify(returnData)); 
+		response.end();
+	}
+}
+
+
 
 
 function getHTMLPage(url, callback) {
-	console.log(url)
 	http.get(url, function(res) {
 		var source = "";
 	    res.on('data', function(data) {
@@ -29,7 +72,7 @@ function User(id){
 	this.movieCollection = [];
 }
 
-User.prototype.init = function() {
+User.prototype.init = function(callback) {
 	var url = "http://movie.douban.com/people/" + this.id + "/collect";
 	var me = this;
 	var thisYear = new Date().getFullYear();
@@ -51,7 +94,6 @@ User.prototype.init = function() {
 				var start = i*15;
 				getHTMLPage(url + "?start=" + start, function(html) {
 					count++;
-					// console.log(count)
 					var flag = handleDom(cheerio.load(html));
 					if(i == needle-1 && !flag) {
 						thisYearFlag = false;
@@ -60,13 +102,12 @@ User.prototype.init = function() {
 					if(count === needle) {
 						if(thisYearFlag) {
 							needle += 5;
-							console.log("i:" + i)
-							console.log("needle:" + needle)
 							goCircle(count, needle);
 						}else {
 							//finish
-							console.log(me.movieCollection)
-							console.log("total: " + me.movieCollection.length)
+							// console.log(me.movieCollection)
+							// console.log("total: " + me.movieCollection.length)
+							callback();
 						}
 					}
 				});
@@ -102,8 +143,5 @@ User.prototype.init = function() {
 };
 
 
-
-// var test = new User("ming33");
-// test.init();
 
 
