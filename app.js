@@ -31,7 +31,7 @@ require('http').createServer(function (request, response) {
 		}
 	}
     
-}).listen(8080);
+}).listen(7000);
 
 function handle(pathname, data, response) {
 	var returnData = {};
@@ -39,7 +39,7 @@ function handle(pathname, data, response) {
 		var currentUser = new User(data.id);
 		currentUser.init(function() {
 			returnData = currentUser.movieCollection;
-			console.log(returnData)
+			console.log(returnData.length)
 			handleResponse(response, returnData);
 		});
 	}
@@ -50,7 +50,6 @@ function handle(pathname, data, response) {
 		response.end();
 	}
 }
-
 
 
 
@@ -122,8 +121,10 @@ User.prototype.init = function(callback) {
         	var elem = items.eq(i);
         	var obj = {};
         	obj.id = elem.find(".info li.title > a").attr("href").match(/\d+/)[0];
+        	obj.img = elem.find(".pic a > img").attr("src");
+        	obj.title = elem.find(".pic a").attr("title");
         	obj.date = elem.find(".info span.date").html();
-        	
+        	        	
         	if(!new RegExp(thisYear).test(obj.date)){
         		flag = false;
         		break;

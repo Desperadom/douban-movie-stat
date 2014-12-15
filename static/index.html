@@ -14,9 +14,12 @@
 			<button class="btn btn-primary" ng-click="submit()">submit</button>
 		</div>
 		<div>
+			<h3 ng-show="moviesCollectionData">共看过{{moviesCollectionData.length}}部电影</h3>
 			<ul>
 				<li ng-repeat="item in moviesCollectionData">
-					id : {{item.id}}, date: {{item.date}}, rate: {{item.rate}}
+					<a ng-href="{{'http://movie.douban.com/subject/'+item.id+'/'}}" title="{{item.title}}" target="_blank">
+						<img ng-src="{{item.img}}" alt="{{item.title}}" />
+					</a>
 				</li>
 			</ul>
 		</div>
