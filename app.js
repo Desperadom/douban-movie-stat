@@ -69,6 +69,7 @@ function User(id){
 	this.id = id;
 	this.totalPage = 0;
 	this.movieCollection = [];
+	this.rateStat = [];
 }
 
 User.prototype.init = function(callback) {
@@ -91,25 +92,25 @@ User.prototype.init = function(callback) {
 			(function(i){
 				console.log("goCircle : " + i);
 				var start = i*15;
-				getHTMLPage(url + "?start=" + start, function(html) {
-					count++;
-					var flag = handleDom(cheerio.load(html));
-					if(i == needle-1 && !flag) {
-						thisYearFlag = false;
-					}
-
-					if(count === needle) {
-						if(thisYearFlag) {
-							needle += 5;
-							goCircle(count, needle);
-						}else {
-							//finish
-							// console.log(me.movieCollection)
-							// console.log("total: " + me.movieCollection.length)
-							callback();
+				setTimeout(function(){
+					getHTMLPage(url + "?start=" + start, function(html) {
+						count++;
+						var flag = handleDom(cheerio.load(html));
+						if(i == needle-1 && !flag) {
+							thisYearFlag = false;
 						}
-					}
-				});
+
+						if(count === needle) {
+							if(thisYearFlag) {
+								needle += 5;
+								goCircle(count, needle);
+							}else {
+								callback();
+							}
+						}
+					});
+				}, i*500);
+				
 			})(i);
 		}
 	}
@@ -119,22 +120,20 @@ User.prototype.init = function(callback) {
         var flag = true;
         for(var i = 0; i < items.length; i++) {
         	var elem = items.eq(i);
-        	var obj = {};
-        	obj.id = elem.find(".info li.title > a").attr("href").match(/\d+/)[0];
-        	obj.img = elem.find(".pic a > img").attr("src");
-        	obj.title = elem.find(".pic a").attr("title");
+        	var obj = {};        	
         	obj.date = elem.find(".info span.date").html();
-        	        	
         	if(!new RegExp(thisYear).test(obj.date)){
         		flag = false;
         		break;
         	}
-        	
+        	obj.id = elem.find(".info li.title > a").attr("href").match(/\d+/)[0];
+        	obj.img = elem.find(".pic a > img").attr("src");
+        	obj.title = elem.find(".pic a").attr("title");
         	var rateDom = elem.find(".info span.date").prev();
         	if(rateDom.attr("class")) {
         		obj.rate = parseInt(rateDom.attr("class").match(/\d/)[0], 10);
         	}else{
-        		obj.rate = -1;
+        		obj.rate = 0;
         	}
         	me.movieCollection.push(obj);
         }
@@ -142,7 +141,6 @@ User.prototype.init = function(callback) {
         return flag;
 	}
 };
-
 
 
 
